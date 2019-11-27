@@ -108,6 +108,16 @@ for i in range(1, 4):
     f2_file_scale.write("k{0}: {1:.4f}\n".format(i, f2_ki[i-1]))
 f2_file_scale.close()
 
+
+#obliczenia 3DM-GX2
+gx1_file = open("output/gx2_wyniki.txt", 'w')
+gx1_0_time = 3.22
+gx1_ang_theta0 = math.asin(GenAverage(gx1_data, 0, 3.22, [0, 1]))*180.0/math.pi
+gx1_ang_phi0 = math.asin(-GenAverage(gx1_data, 0, 3.22, [0, 2])/math.cos(gx1_ang_theta0))*180.0/math.pi
+gx1_file.write("theta_0 = {0:.4f}\tphi_0 = {0:.4f}".format(gx1_ang_theta0, gx1_ang_phi0))
+gx1_file.close()
+
+#IMU-ZAIOL-01
 #przyspieszenie
 plt.figure(figsize = (25/2.54, 20/2.54))
 plt.subplot(111)
@@ -135,4 +145,29 @@ plt.ylabel(r"w $\left [ \frac{m}{s} \right ]$")
 plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/IMU-ZAIOL-01_2_U_w_t.png")
+
+#3DM-GX2
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx1_data[0], gx1_data[1], label="oś x")
+plt.plot(gx1_data[0], gx1_data[2], label="oś y")
+plt.plot(gx1_data[0], gx1_data[3], label="oś z")
+plt.grid(True)
+plt.title("Wykres odczytanego napięcia na 3DM-GX2 w funkcji czasu (składowa \"$a$\").")
+plt.ylabel(r"$\frac{a}{g} \left [ - \right ]$")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_1_a.png")
+
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx1_data[0], gx1_data[4], label="oś x")
+plt.plot(gx1_data[0], gx1_data[5], label="oś y")
+plt.plot(gx1_data[0], gx1_data[6], label="oś z")
+plt.grid(True)
+plt.title("Wykres odczytanego napięcia na 3DM-GX2 w funkcji czasu (składowa \"$\omega$\").")
+plt.ylabel(r"$\omega \left [ \frac{m}{s^2} \right ]$")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_1_w.png")
 plt.show()
