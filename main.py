@@ -295,7 +295,7 @@ for i in range(1, len(gx1_data[0])):
     for o in range(3):
         gx1_angles_kin[o].append(gx1_angles_kin[o][i-1]+gx1_matrix_kin[o]*dt)
     gx1_time_passed_kin.append(gx1_time_passed[i-1]+dt)
-    gx1_file_kin.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx1_time_passed_kin[i], gx1_angles_kin[0][i], gx1_angles_kin[1][i], gx1_angles_kin[2][i]))
+    gx1_file_kin.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx1_time_passed_kin[i], gx1_angles_kin[0][i]*180.0/math.pi, gx1_angles_kin[1][i]*180.0/math.pi, gx1_angles_kin[2][i]*180.0/math.pi))
 
 for i in range(len(gx1_angles_kin[0])):
     for o in range(3):
@@ -383,7 +383,7 @@ for i in range(1, len(gx2_data[0])):
     for o in range(3):
         gx2_angles_kin[o].append(gx2_angles_kin[o][i-1]+gx2_matrix_kin[o]*dt)
     gx2_time_passed_kin.append(gx2_time_passed[i-1]+dt)
-    gx2_file_kin.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx2_time_passed_kin[i], gx2_angles_kin[0][i], gx2_angles_kin[1][i], gx2_angles_kin[2][i]))
+    gx2_file_kin.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx2_time_passed_kin[i], gx2_angles_kin[0][i]*180.0/math.pi, gx2_angles_kin[1][i]*180.0/math.pi, gx2_angles_kin[2][i]*180.0/math.pi))
 
 for i in range(len(gx2_angles_kin[0])):
     for o in range(3):
