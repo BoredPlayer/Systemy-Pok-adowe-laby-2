@@ -316,4 +316,79 @@ plt.ylabel(r"kąt $\left [ ^\circ \right ]$")
 plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_2_ang_kin.png")
+
+#ruch swobodny
+gx2_file_quat = open("output/gx2_quat.txt", 'w')
+gx2_ang_theta0 = math.asin(GenAverage(gx2_data, 0, 3.22, [0, 1]))
+gx2_ang_phi0 = math.asin(-GenAverage(gx2_data, 0, 3.22, [0, 2])/math.cos(gx2_ang_theta0))
+qa = quat_init(gx2_ang_phi0, gx2_ang_theta0, 0)
+gx2_angles = [[],[],[]]
+gx2_time_passed = []
+
+for i in range(len(gx2_data[0])-1):
+    w = [gx2_data[4][i], gx2_data[5][i], gx2_data[6][i]]
+    dt = gx2_data[0][i+1]-gx2_data[0][i]
+    qb = Qb(w, dt)
+    qq = mulQ(qa, qb)
+    gx2_angles_a = Qangles(qq)
+    gx2_angles[0].append(gx2_angles_a[0]*180.0/math.pi)
+    gx2_angles[1].append(gx2_angles_a[1]*180.0/math.pi)
+    gx2_angles[2].append(gx2_angles_a[2]*180.0/math.pi)
+    qa=qq
+    if(i>1):
+        gx2_time_passed.append(gx2_time_passed[i-1]+dt)
+    else:
+        gx2_time_passed.append(dt)
+    gx2_file_quat.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx2_time_passed[i], gx2_angles[0][i], gx2_angles[1][i], gx2_angles[2][i]))
+
+gx2_file_quat.close()
+
+#kinematyka
+gx2_file_kin = open("output/gx2_kin.txt", 'w')
+
+gx2_time_passed_kin = [0]
+gx2_angles_kin = [[gx2_ang_phi0],[gx2_ang_theta0],[0]]
+
+for i in range(1, len(gx2_data[0])):
+    gx2_angles_a = [gx2_angles_kin[0][i-1], gx2_angles_kin[1][i-1], gx2_angles_kin[2][i-1]]
+    gx2_pqr_a = [gx2_data[4][i], gx2_data[5][i], gx2_data[6][i]]
+    gx2_matrix_kin = mulKin(gx2_angles_a, gx2_pqr_a)
+    dt = gx2_data[0][i]-gx2_data[0][i-1]
+    for o in range(3):
+        gx2_angles_kin[o].append(gx2_angles_kin[o][i-1]+gx2_matrix_kin[o]*dt)
+    gx2_time_passed_kin.append(gx2_time_passed[i-1]+dt)
+    gx2_file_kin.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx2_time_passed_kin[i], gx2_angles_kin[0][i], gx2_angles_kin[1][i], gx2_angles_kin[2][i]))
+
+for i in range(len(gx2_angles_kin[0])):
+    for o in range(3):
+        gx2_angles_kin[o][i] *= 180.0/math.pi
+
+gx2_file_kin.close()
+
+#przesunięcie
+
+#rysowanie wykresu 3d kwaternionów
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx2_time_passed, gx2_angles[0], label="$\phi$")
+plt.plot(gx2_time_passed, gx2_angles[1], label=r"$\theta$")
+plt.plot(gx2_time_passed, gx2_angles[2], label="$\psi$")
+plt.grid(True)
+plt.title("Wykres kątów orientacji obliczonych kwaternionami w funkcji czasu.")
+plt.ylabel(r"kąt $\left [ ^\circ \right ]$")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_3_ang.png")
+
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx2_time_passed_kin, gx2_angles_kin[0], label="$\phi$")
+plt.plot(gx2_time_passed_kin, gx2_angles_kin[1], label=r"$\theta$")
+plt.plot(gx2_time_passed_kin, gx2_angles_kin[2], label="$\psi$")
+plt.grid(True)
+plt.title("Wykres kątów orientacji obliczonych równaniami kinematycznymi w funkcji czasu.")
+plt.ylabel(r"kąt $\left [ ^\circ \right ]$")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_3_ang_kin.png")
 plt.show()
