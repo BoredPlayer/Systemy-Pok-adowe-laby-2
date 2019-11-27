@@ -206,14 +206,19 @@ plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_1_a.png")
 
+gx1_converted = [[],[],[]]
+for o in range(3):
+    for i in range(len(gx1_data[0])):
+        gx1_converted[o].append(gx1_data[o+4][i]*180.0/math.pi)
+
 plt.figure(figsize = (25/2.54, 20/2.54))
 plt.subplot(111)
-plt.plot(gx1_data[0], gx1_data[4], label="oś x")
-plt.plot(gx1_data[0], gx1_data[5], label="oś y")
-plt.plot(gx1_data[0], gx1_data[6], label="oś z")
+plt.plot(gx1_data[0], gx1_converted[0], label="oś x")
+plt.plot(gx1_data[0], gx1_converted[1], label="oś y")
+plt.plot(gx1_data[0], gx1_converted[2], label="oś z")
 plt.grid(True)
 plt.title("Wykres odczytanych wartości na 3DM-GX2 w funkcji czasu (składowa \"$\omega$\").")
-plt.ylabel(r"$\omega \left [ \frac{rad}{s} \right ]$")
+plt.ylabel(r"$\omega \left [ \frac{^\circ}{s} \right ]$")
 plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_1_w.png")
@@ -231,14 +236,20 @@ plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_2_a.png")
 
+
+gx2_converted = [[],[],[]]
+for o in range(3):
+    for i in range(len(gx2_data[0])):
+        gx2_converted[o].append(gx2_data[o+4][i]*180.0/math.pi)
+
 plt.figure(figsize = (25/2.54, 20/2.54))
 plt.subplot(111)
-plt.plot(gx2_data[0], gx2_data[4], label="oś x")
-plt.plot(gx2_data[0], gx2_data[5], label="oś y")
-plt.plot(gx2_data[0], gx2_data[6], label="oś z")
+plt.plot(gx2_data[0], gx2_converted[0], label="oś x")
+plt.plot(gx2_data[0], gx2_converted[1], label="oś y")
+plt.plot(gx2_data[0], gx2_converted[2], label="oś z")
 plt.grid(True)
 plt.title("Wykres odczytanych wartości na 3DM-GX2 w funkcji czasu (składowa \"$\omega$\").")
-plt.ylabel(r"$\omega \left [ \frac{rad}{s} \right ]$")
+plt.ylabel(r"$\omega \left [ \frac{^\circ}{s} \right ]$")
 plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_2_w.png")
@@ -381,6 +392,23 @@ for i in range(len(gx2_angles_kin[0])):
 gx2_file_kin.close()
 
 #przesunięcie
+
+gx2_file_mov = open("gx2_droga.txt", 'w')
+gx2_time_passed_mov = [0]
+gx2_disp = [[0], [0], [0]]
+gx2_vel = [[0],[0],[0]]
+
+for i in range(1, len(gx2_data[0])):
+    dt = gx2_data[0][i]-gx2_data[0][i-1]
+    for o in range(3):
+        gx2_vel[o].append(gx2_vel[o][i-1]+gx2_data[o+1][i]*dt)
+        gx2_disp[o].append(gx2_disp[o][i-1]+gx2_vel[o][i]*dt)
+    gx2_time_passed_mov.append(gx2_time_passed_mov[i-1]+dt)
+    gx2_file_mov.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\t{4:.3f}\t{5:.3f}\t{6:.3f}\n".format(gx2_time_passed_mov[i], gx2_disp[0][i], gx2_disp[1][i], gx2_disp[2][i], gx2_vel[0][i], gx2_vel[1][i], gx2_vel[2][i]))
+    
+fig = plt.figure(figsize = (25/2.54, 20/2.54))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot(gx2_disp[0], gx2_disp[1], gx2_disp[2])
 
 #rysowanie wykresu 3d kwaternionów
 plt.figure(figsize = (25/2.54, 20/2.54))
