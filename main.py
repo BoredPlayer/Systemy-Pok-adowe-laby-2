@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 f1 = open("dane/data_spf1.txt", "r")
 f2 = open("dane/data_spf2.txt", "r")
@@ -13,6 +14,47 @@ f1_data = [[],[],[],[],[],[],[]]
 f2_data = [[],[],[],[],[],[],[]]
 gx1_data = [[],[],[],[],[],[],[]]
 gx2_data = [[],[],[],[],[],[],[]]
+
+
+def quat_init(phi, theta, psi):
+    q0 = math.cos(psi/2)*math.cos(theta/2)*math.cos(phi/2)+math.sin(psi/2)*math.sin(theta/2)*math.sin(phi/2)
+    q1 = math.cos(psi/2)*math.cos(theta/2)*math.sin(phi/2)+math.sin(psi/2)*math.sin(theta/2)*math.cos(phi/2)
+    q2 = math.cos(psi/2)*math.sin(theta/2)*math.cos(phi/2)+math.sin(psi/2)*math.cos(theta/2)*math.sin(phi/2)
+    q3 = math.sin(psi/2)*math.cos(theta/2)*math.cos(phi/2)+math.cos(psi/2)*math.sin(theta/2)*math.sin(phi/2)
+    return [q0, q1, q2, q3]
+    
+def Vlength(tab):
+    sum = 0
+    for i in range(len(tab)):
+        sum += tab[i]*tab[i]
+    return math.sqrt(sum)
+
+def Qb(w, dt):
+    w_ = Vlength(w)
+    phi = w_ * dt
+    q0 = math.cos(phi/2)
+    q1 = w[0]/w_ * math.sin(phi/2)
+    q2 = w[1]/w_ * math.sin(phi/2)
+    q3 = w[2]/w_ * math.sin(phi/2)
+    return [q0, q1, q2, q3]
+    
+def mulQ(Q1, Q2):
+    q0 = Q1[0]*Q2[0]-Q1[1]*Q2[1]-Q1[2]*Q2[2]-Q1[3]*Q2[3]
+    q1 = Q1[0]*Q2[1]+Q1[1]*Q2[0]+Q1[2]*Q2[3]-Q1[3]*Q2[2]
+    q2 = Q1[0]*Q2[2]-Q1[1]*Q2[3]+Q1[2]*Q2[0]+Q1[3]*Q2[1]
+    q3 = Q1[0]*Q2[3]+Q1[1]*Q2[2]-Q1[2]*Q2[1]+Q1[3]*Q2[0]
+    return [q0, q1, q2, q3]
+
+def Cmatrix(Q):
+    return [[2*(Q[0]*Q[0]+Q[1]*Q[1])-1, 2*(Q[1]*Q[2]-Q[0]*Q[3]), 2*(Q[1]*Q[3]+Q[0]*Q[2])],[2*(Q[1]*Q[2]+Q[0]*Q[3]), 2*(Q[0]*Q[0]+Q[2]*Q[2])-1, 2*(Q[2]*Q[3]-Q[0]*Q[1])],[2*(Q[1]*Q[3]-Q[0]*Q[2]), 2*(Q[2]*Q[3]+Q[0]*Q[1]), 2*(Q[0]*Q[0]+Q[3]*Q[3])-1]]
+
+def Qangles(Q):
+    Mat = Cmatrix(Q)
+    theta = math.asin(-Mat[0][2])
+    phi = -2*math.atan(Mat[1][2]/(Mat[2][2]+math.cos(theta)))
+    psi = -2*math.atan(Mat[0][1]/(Mat[0][0]+math.cos(theta)))
+    return [phi, theta, psi]
+            
 
 def GenAB(tab):
     #przyjmuje U jako tab[0] i a jako tab[1]
@@ -153,7 +195,7 @@ plt.plot(gx1_data[0], gx1_data[1], label="oś x")
 plt.plot(gx1_data[0], gx1_data[2], label="oś y")
 plt.plot(gx1_data[0], gx1_data[3], label="oś z")
 plt.grid(True)
-plt.title("Wykres odczytanego napięcia na 3DM-GX2 w funkcji czasu (składowa \"$a$\").")
+plt.title("Wykres odczytanych wartości na 3DM-GX2 w funkcji czasu (składowa \"$a$\").")
 plt.ylabel(r"$\frac{a}{g} \left [ - \right ]$")
 plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
@@ -165,9 +207,74 @@ plt.plot(gx1_data[0], gx1_data[4], label="oś x")
 plt.plot(gx1_data[0], gx1_data[5], label="oś y")
 plt.plot(gx1_data[0], gx1_data[6], label="oś z")
 plt.grid(True)
-plt.title("Wykres odczytanego napięcia na 3DM-GX2 w funkcji czasu (składowa \"$\omega$\").")
+plt.title("Wykres odczytanych wartości na 3DM-GX2 w funkcji czasu (składowa \"$\omega$\").")
 plt.ylabel(r"$\omega \left [ \frac{m}{s^2} \right ]$")
 plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_1_w.png")
+#plt.show()
+
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx2_data[0], gx2_data[1], label="oś x")
+plt.plot(gx2_data[0], gx2_data[2], label="oś y")
+plt.plot(gx2_data[0], gx2_data[3], label="oś z")
+plt.grid(True)
+plt.title("Wykres odczytanych wartości na 3DM-GX2 w funkcji czasu (składowa \"$a$\").")
+plt.ylabel(r"$\frac{a}{g} \left [ - \right ]$")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_2_a.png")
+
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx2_data[0], gx2_data[4], label="oś x")
+plt.plot(gx2_data[0], gx2_data[5], label="oś y")
+plt.plot(gx2_data[0], gx2_data[6], label="oś z")
+plt.grid(True)
+plt.title("Wykres odczytanych wartości na 3DM-GX2 w funkcji czasu (składowa \"$\omega$\").")
+plt.ylabel(r"$\omega \left [ \frac{m}{s^2} \right ]$")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_2_w.png")
+#plt.show()
+
+#orientacja przestrzenna
+gx1_file_quat = open("output/gx1_quat.txt", 'w')
+gx1_ang_theta0 = math.asin(GenAverage(gx1_data, 0, 3.22, [0, 1]))
+gx1_ang_phi0 = math.asin(-GenAverage(gx1_data, 0, 3.22, [0, 2])/math.cos(gx1_ang_theta0))
+qa = quat_init(gx1_ang_phi0, gx1_ang_theta0, 0)
+gx1_angles = [[],[],[]]
+gx1_time_passed = []
+
+for i in range(len(gx1_data[0])-1):
+    w = [gx1_data[4][i], gx1_data[5][i], gx1_data[6][i]]
+    dt = gx1_data[0][i+1]-gx1_data[0][i]
+    qb = Qb(w, dt)
+    qq = mulQ(qa, qb)
+    gx1_angles_a = Qangles(qq)
+    gx1_angles[0].append(gx1_angles_a[0])
+    gx1_angles[1].append(gx1_angles_a[1])
+    gx1_angles[2].append(gx1_angles_a[2])
+    qa=qq
+    if(i>1):
+        gx1_time_passed.append(gx1_time_passed[i-1]+dt)
+    else:
+        gx1_time_passed.append(dt)
+    gx1_file_quat.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx1_time_passed[i], gx1_angles[0][i]*180.0/math.pi, gx1_angles[1][i]*180.0/math.pi, gx1_angles[2][i]*180.0/math.pi))
+
+gx1_file_quat.close()
+
+#rysowanie wykresu 3d
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx1_time_passed, gx1_angles[0], label="$\phi$")
+plt.plot(gx1_time_passed, gx1_angles[1], label=r"$\theta$")
+plt.plot(gx1_time_passed, gx1_angles[2], label="$\psi$")
+plt.grid(True)
+plt.title("Wykres obliczonych kątów orientacji w funkcji czasu.")
+plt.ylabel(r"kąt $\left [ ^\circ \right ]$")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_2_ang.png")
 plt.show()
