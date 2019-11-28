@@ -346,8 +346,8 @@ plt.savefig("output/3DM-GX2_2_ang_porownianie.png")
 
 #ruch swobodny
 gx2_file_quat = open("output/gx2_quat.txt", 'w')
-gx2_ang_theta0 = math.asin(GenAverage(gx2_data, 0, 3.22, [0, 1]))
-gx2_ang_phi0 = math.asin(-GenAverage(gx2_data, 0, 3.22, [0, 2])/math.cos(gx2_ang_theta0))
+gx2_ang_theta0 = 0
+gx2_ang_phi0 = 0
 qa = quat_init(gx2_ang_phi0, gx2_ang_theta0, 0)
 gx2_angles = [[],[],[]]
 gx2_time_passed = [0]
