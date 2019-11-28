@@ -350,8 +350,10 @@ gx2_ang_phi0 = math.asin(-GenAverage(gx2_data, 0, 3.22, [0, 2])/math.cos(gx2_ang
 qa = quat_init(gx2_ang_phi0, gx2_ang_theta0, 0)
 gx2_angles = [[],[],[]]
 gx2_time_passed = []
+gx2_unortho_error = []
 
 for i in range(len(gx2_data[0])-1):
+    gx2_unortho_error.append(qa[0]+qa[1]+qa[2]+qa[3]-1)
     w = [gx2_data[4][i], gx2_data[5][i], gx2_data[6][i]]
     dt = gx2_data[0][i+1]-gx2_data[0][i]
     qb = Qb(w, dt)
@@ -365,7 +367,8 @@ for i in range(len(gx2_data[0])-1):
         gx2_time_passed.append(gx2_time_passed[i-1]+dt)
     else:
         gx2_time_passed.append(dt)
-    gx2_file_quat.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx2_time_passed[i], gx2_angles[0][i], gx2_angles[1][i], gx2_angles[2][i]))
+    gx2_file_quat.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\t{4:.3f}\n".format(gx2_time_passed[i], gx2_angles[0][i], gx2_angles[1][i], gx2_angles[2][i], gx2_unortho_error[i]))
+gx2_unortho_error.append(qa[0]+qa[1]+qa[2]+qa[3]-1)
 
 gx2_file_quat.close()
 
@@ -445,5 +448,15 @@ plt.ylabel(r"kąt $\left [ ^\circ \right ]$")
 plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_3_ang_porownanie.png")
+
+plt.figure(figsize = (25/2.54, 20/2.54))
+plt.subplot(111)
+plt.plot(gx2_time_passed_kin, gx2_unortho_error, label="$e$")
+plt.grid(True)
+plt.title(r"Błąd nieortogonalności w funkcji czasu.")
+plt.ylabel(r"błąd [-]")
+plt.xlabel("t [s]")
+plt.legend(loc = "lower right")
+plt.savefig("output/3DM-GX2_3_unortho_error.png")
 
 plt.show()
