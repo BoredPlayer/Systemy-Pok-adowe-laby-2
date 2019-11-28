@@ -461,4 +461,4 @@ plt.xlabel("t [s]")
 plt.legend(loc = "lower right")
 plt.savefig("output/3DM-GX2_3_unortho_error.png")
 
-plt.show()
+#plt.show()
