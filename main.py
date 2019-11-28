@@ -261,7 +261,7 @@ gx1_ang_theta0 = math.asin(GenAverage(gx1_data, 0, 3.22, [0, 1]))
 gx1_ang_phi0 = math.asin(-GenAverage(gx1_data, 0, 3.22, [0, 2])/math.cos(gx1_ang_theta0))
 qa = quat_init(gx1_ang_phi0, gx1_ang_theta0, 0)
 gx1_angles = [[],[],[]]
-gx1_time_passed = []
+gx1_time_passed = [0]
 
 for i in range(len(gx1_data[0])-1):
     w = [gx1_data[4][i], gx1_data[5][i], gx1_data[6][i]]
@@ -273,11 +273,12 @@ for i in range(len(gx1_data[0])-1):
     gx1_angles[1].append(gx1_angles_a[1]*180.0/math.pi)
     gx1_angles[2].append(gx1_angles_a[2]*180.0/math.pi)
     qa=qq
-    if(i>1):
-        gx1_time_passed.append(gx1_time_passed[i-1]+dt)
-    else:
-        gx1_time_passed.append(dt)
     gx1_file_quat.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\n".format(gx1_time_passed[i], gx1_angles[0][i], gx1_angles[1][i], gx1_angles[2][i]))
+    if(i<len(gx1_data[0])-2):
+        if(i>1):
+            gx1_time_passed.append(gx1_time_passed[i-1]+dt)
+        else:
+            gx1_time_passed.append(dt)
 
 gx1_file_quat.close()
 
@@ -349,7 +350,7 @@ gx2_ang_theta0 = math.asin(GenAverage(gx2_data, 0, 3.22, [0, 1]))
 gx2_ang_phi0 = math.asin(-GenAverage(gx2_data, 0, 3.22, [0, 2])/math.cos(gx2_ang_theta0))
 qa = quat_init(gx2_ang_phi0, gx2_ang_theta0, 0)
 gx2_angles = [[],[],[]]
-gx2_time_passed = []
+gx2_time_passed = [0]
 gx2_unortho_error = []
 
 for i in range(len(gx2_data[0])-1):
@@ -363,11 +364,12 @@ for i in range(len(gx2_data[0])-1):
     gx2_angles[1].append(gx2_angles_a[1]*180.0/math.pi)
     gx2_angles[2].append(gx2_angles_a[2]*180.0/math.pi)
     qa=qq
-    if(i>1):
-        gx2_time_passed.append(gx2_time_passed[i-1]+dt)
-    else:
-        gx2_time_passed.append(dt)
     gx2_file_quat.write("{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}\t{4:.3f}\n".format(gx2_time_passed[i], gx2_angles[0][i], gx2_angles[1][i], gx2_angles[2][i], gx2_unortho_error[i]))
+    if(i<len(gx2_data[0])-2):
+        if(i>1):
+            gx2_time_passed.append(gx2_time_passed[i-1]+dt)
+        else:
+            gx2_time_passed.append(dt)
 gx2_unortho_error.append(qa[0]+qa[1]+qa[2]+qa[3]-1)
 
 gx2_file_quat.close()
